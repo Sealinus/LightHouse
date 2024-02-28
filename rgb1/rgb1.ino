@@ -5,7 +5,7 @@ void setup() {
   Serial.setTimeout(50);
 }
 
-void readhv (int a, int b) {
+void readhv () {
   if (Serial.available() > 0) {
     String bufString = Serial.readString(); 
     byte dividerIndex = bufString.indexOf(';'); 
@@ -13,10 +13,10 @@ void readhv (int a, int b) {
     String buf_1 = bufString.substring(0, dividerIndex); 
     String buf_2 = bufString.substring(dividerIndex + 1);
 
-    a = buf_1.toInt(); 
-    b = buf_2.toInt();
-    Serial.println(a);
-    Serial.println(b);
+    v = buf_1.toInt(); 
+    h = buf_2.toInt();
+    Serial.println(v);
+    Serial.println(h);
   }
 }
 
@@ -32,7 +32,7 @@ int vdec (int b, int c) {
   return (b - c);
 }
 
-void rgb (int x, int y, int z, int n, int r, int g, int b) {
+void rgb (int x, int y, int z, int n) {
   switch (n) {
     case 0 :
       r = x; g = y; b = 0;
@@ -50,8 +50,8 @@ void rgb (int x, int y, int z, int n, int r, int g, int b) {
 }
 
 void loop() {
-  readhv (h, v);
-  rgb (v, vinc(h,v), vdec(v, vinc(h, v)), hi(h), r, g, b);
+  readhv ();
+  rgb (v, vinc(h,v), vdec(v, vinc(h, v)), hi(h));
   analogWrite (9, r);
   analogWrite (10, g);
   analogWrite (11, b);
