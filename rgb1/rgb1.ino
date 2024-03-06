@@ -1,3 +1,10 @@
+#define maxv 1.0
+#define minv 0.0
+#define maxh 360.0
+#define minh 0.0
+
+#define DebugModeON (true)
+
 typedef struct {
     double r;       // a fraction between 0 and 1
     double g;       // a fraction between 0 and 1
@@ -16,23 +23,23 @@ void setup() {
   Serial.setTimeout(50);
 }
 
-hsv readdata (hsv data) {
+void readdata (hsv& data) {
   if (Serial.available() > 0) {
     String bufString = Serial.readString(); 
     byte dividerIndex = bufString.indexOf(';'); 
 
-    String buf_1 = bufString.substring(0, dividerIndex); 
-    String buf_2 = bufString.substring(dividerIndex + 1);
+    String buf_h = bufString.substring(0, dividerIndex); 
+    String buf_v = bufString.substring(dividerIndex + 1);
 
-    data.h = buf_1.toDouble(); 
-    data.v = buf_2.toDouble();
-    data.s = 1.0;
+    if (buf_h.toDouble() >= minh && buf_h.toDouble() <= maxh) data.h = buf_h.toDouble();
+    if (buf_v.toDouble() >= minv && buf_v.toDouble() <= maxv) data.v = buf_v.toDouble();
 
-    Serial.println(data.v);
-    Serial.println(data.h);
+    if DebugModeON {
+      Serial.println(data.h);
+      Serial.println(data.v);
+    }
+    
   }
-
-   return data;
 }
 
 rgb hsv2rgb(hsv in){
@@ -54,14 +61,17 @@ rgb hsv2rgb(hsv in){
     case 4: interm.r = x; interm.g = 0; interm.b = c; break;
     case 5: interm.r = c; interm.g = 0; interm.b = x; break; 
   }
-  Serial.print(c);
-  Serial.print(" ");
-  Serial.print(x);
-  Serial.print(" ");
-  Serial.print(m);
-  Serial.print(" ");
-  Serial.print(sec);
-  Serial.println();
+
+  if DebugModeON {
+    Serial.print(c);
+    Serial.print(" ");
+    Serial.print(x);
+    Serial.print(" ");
+    Serial.print(m);
+    Serial.print(" ");
+    Serial.print(sec);
+    Serial.println();
+  }
 
   out.r = (interm.r + m) * 255;
   out.g = (interm.g + m) * 255;
@@ -75,7 +85,8 @@ void loop() {
   static hsv hsvin;
   static rgb rgbout;
 
-  hsvin = readdata (hsvin);
+  hsvin.s = 1.0;
+  readdata(hsvin);
 
   /*Serial.print(hsvin.h);
   Serial.print(" ");
@@ -85,11 +96,13 @@ void loop() {
 
   rgbout = hsv2rgb(hsvin);
 
-  Serial.print(rgbout.r);
-  Serial.print(" ");
-  Serial.print(rgbout.g);
-  Serial.print(" ");
-  Serial.println(rgbout.b);
+  if DebugModeON {
+    Serial.print(rgbout.r);
+    Serial.print(" ");
+    Serial.print(rgbout.g);
+    Serial.print(" ");
+    Serial.println(rgbout.b);
+  }
 
   analogWrite (9, rgbout.r);
   analogWrite (10, rgbout.g);
