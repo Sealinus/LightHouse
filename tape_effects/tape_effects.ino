@@ -80,6 +80,38 @@ rgb hsv2rgb(hsv in){
   return out;
 }
 
+hsv rgb2hsv(rgb in){
+  hsv out;
+  double cmax, cmin, delta;
+
+  in.r = in.r / 255;
+  in.g = in.g / 255;
+  in.b = in.b / 255;
+  cmax = max(max(in.r, in.g), in.b);
+  cmin = min(min(in.r, in.g), in.b);
+  delta = cmax - cmin;
+
+  if (delta == 0) out.h = 0;
+  else if (cmax == in.r) out.h = 60.0 * (fmod((in.g - in.b) / delta, 6));
+  else if (cmax == in.g) out.h = 60.0 * ((in.b - in.r) / delta + 2);
+  else if (cmax == in.b) out.h = 60.0 * ((in.r - in.g) / delta + 4);
+
+  if (cmax = 0) out.s = 0;
+  else out.s = delta / cmax;
+
+  out.v = cmax;
+
+  if DebugModeON {
+    Serial.print(cmax);
+    Serial.print(" ");
+    Serial.print(cmin);
+    Serial.print(" ");
+    Serial.print(delta);
+    Serial.println();
+  }
+
+  return out;
+}
 
 void loop() {
   static hsv hsvin;
