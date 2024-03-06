@@ -1,63 +1,110 @@
-int r, g, b, h, v = 0;
+#define maxv 1.0
+#define minv 0.0
+#define maxh 360.0
+#define minh 0.0
+
+#define DebugModeON (true)
+
+typedef struct {
+    double r;       // a fraction between 0 and 1
+    double g;       // a fraction between 0 and 1
+    double b;       // a fraction between 0 and 1
+} rgb;
+
+typedef struct {
+    double h;       // angle in degrees
+    double s;       // a fraction between 0 and 1
+    double v;       // a fraction between 0 and 1
+} hsv;
+
 
 void setup() {
   Serial.begin(9600);
   Serial.setTimeout(50);
 }
 
-void readhv () {
+void readdata (hsv& data) {
   if (Serial.available() > 0) {
     String bufString = Serial.readString(); 
     byte dividerIndex = bufString.indexOf(';'); 
 
-    String buf_1 = bufString.substring(0, dividerIndex); 
-    String buf_2 = bufString.substring(dividerIndex + 1);
+    String buf_h = bufString.substring(0, dividerIndex); 
+    String buf_v = bufString.substring(dividerIndex + 1);
 
-    v = buf_1.toInt(); 
-    h = buf_2.toInt();
-    Serial.println(v);
-    Serial.println(h);
+    if (buf_h.toDouble() >= minh && buf_h.toDouble() <= maxh) data.h = buf_h.toDouble();
+    if (buf_v.toDouble() >= minv && buf_v.toDouble() <= maxv) data.v = buf_v.toDouble();
+
+    if DebugModeON {
+      Serial.println(data.h);
+      Serial.println(data.v);
+    }
+    
   }
 }
 
-int hi (int a) {
-  return ((a / 60) % 6);
+rgb hsv2rgb(hsv in){
+  rgb out, interm;
+  double c, x, m;
+  byte sec;
+
+  in.h = fmod(in.h, 360);
+  c = in.v * in.s;
+  x = c * (1 - abs(fmod((in.h / 60.0), 2) - 1));
+  m = in.v - c;
+  sec = (in.h / 60);
+
+  switch (sec){
+    case 0: interm.r = c; interm.g = x; interm.b = 0; break;
+    case 1: interm.r = x; interm.g = c; interm.b = 0; break;
+    case 2: interm.r = 0; interm.g = c; interm.b = x; break;
+    case 3: interm.r = 0; interm.g = x; interm.b = c; break;
+    case 4: interm.r = x; interm.g = 0; interm.b = c; break;
+    case 5: interm.r = c; interm.g = 0; interm.b = x; break; 
+  }
+
+  if DebugModeON {
+    Serial.print(c);
+    Serial.print(" ");
+    Serial.print(x);
+    Serial.print(" ");
+    Serial.print(m);
+    Serial.print(" ");
+    Serial.print(sec);
+    Serial.println();
+  }
+
+  out.r = (interm.r + m) * 255;
+  out.g = (interm.g + m) * 255;
+  out.b = (interm.b + m) * 255;
+
+  return out;
 }
 
-int vinc (int a, int b) {
-  return (b * ((a % 60)/60));
-}
-
-int vdec (int b, int c) {
-  return (b - c);
-}
-
-void rgb (int x, int y, int z, int n) {
-  switch (n) {
-    case 0 :
-      r = x; g = y; b = 0;
-    case 1 :
-      r = z; g = x; b = 0;
-    case 2 :
-      r = 0; g = x; b = y;
-    case 3 :
-      r = 0; g = z; b = x;
-    case 4 :
-      r = y; g = 0; b = x;
-    case 5 :
-      r = x; g = 0; b = z;
-}
-}
 
 void loop() {
-  readhv ();
-  rgb (v, vinc(h,v), vdec(v, vinc(h, v)), hi(h));
-  analogWrite (9, r);
-  analogWrite (10, g);
-  analogWrite (11, b);
-  Serial.print(r);
+  static hsv hsvin;
+  static rgb rgbout;
+
+  hsvin.s = 1.0;
+  readdata(hsvin);
+
+  /*Serial.print(hsvin.h);
   Serial.print(" ");
-  Serial.print(g);
+  Serial.print(hsvin.s);
   Serial.print(" ");
-  Serial.println(b);
+  Serial.println(hsvin.v);*/
+
+  rgbout = hsv2rgb(hsvin);
+
+  if DebugModeON {
+    Serial.print(rgbout.r);
+    Serial.print(" ");
+    Serial.print(rgbout.g);
+    Serial.print(" ");
+    Serial.println(rgbout.b);
+  }
+
+  analogWrite (9, rgbout.r);
+  analogWrite (10, rgbout.g);
+  analogWrite (11, rgbout.b);
 }
