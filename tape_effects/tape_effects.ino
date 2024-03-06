@@ -23,20 +23,23 @@ void setup() {
   Serial.setTimeout(50);
 }
 
-void readdata (hsv& data) {
+void readdata (rgb& data) {
   if (Serial.available() > 0) {
     String bufString = Serial.readString(); 
     byte dividerIndex = bufString.indexOf(';'); 
 
-    String buf_h = bufString.substring(0, dividerIndex); 
-    String buf_v = bufString.substring(dividerIndex + 1);
+    String buf_r = bufString.substring(0, dividerIndex); 
+    String buf_g = bufString.substring(dividerIndex + 1);
+    String buf_b = bufString.substring(dividerIndex + 2);
 
-    if (buf_h.toDouble() >= minh && buf_h.toDouble() <= maxh) data.h = buf_h.toDouble();
-    if (buf_v.toDouble() >= minv && buf_v.toDouble() <= maxv) data.v = buf_v.toDouble();
+    data.r = buf_r.toDouble();
+    data.g = buf_g.toDouble();
+    data.b = buf_b.toDouble();
 
     if DebugModeON {
-      Serial.println(data.h);
-      Serial.println(data.v);
+      Serial.println(data.r);
+      Serial.println(data.g);
+      Serial.println(data.b);
     }
     
   }
@@ -114,11 +117,10 @@ hsv rgb2hsv(rgb in){
 }
 
 void loop() {
-  static hsv hsvin;
-  static rgb rgbout;
+  static hsv hsvout;
+  static rgb rgbin;
 
-  hsvin.s = 1.0;
-  readdata(hsvin);
+  readdata(rgbin);
 
   /*Serial.print(hsvin.h);
   Serial.print(" ");
@@ -126,17 +128,17 @@ void loop() {
   Serial.print(" ");
   Serial.println(hsvin.v);*/
 
-  rgbout = hsv2rgb(hsvin);
+  hsvout = rgb2hsv(rgbin);
 
   if DebugModeON {
-    Serial.print(rgbout.r);
+    Serial.print(hsvout.h);
     Serial.print(" ");
-    Serial.print(rgbout.g);
+    Serial.print(hsvout.s);
     Serial.print(" ");
-    Serial.println(rgbout.b);
+    Serial.println(hsvout.v);
   }
 
-  analogWrite (9, rgbout.r);
+  /*analogWrite (9, rgbout.r);
   analogWrite (10, rgbout.g);
-  analogWrite (11, rgbout.b);
+  analogWrite (11, rgbout.b);*/
 }
