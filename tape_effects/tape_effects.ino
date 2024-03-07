@@ -1,7 +1,5 @@
-#define maxv 1.0
-#define minv 0.0
-#define maxh 360.0
-#define minh 0.0
+#define maxc 255.0
+#define minc 0.0
 
 #define DebugModeON (true)
 
@@ -31,9 +29,9 @@ void readdata (rgb& data) {
     String buf_r = bufString.substring(0, dividerIndex); 
     String buf_b = bufString.substring(dividerIndex + 1);
 
-    data.r = buf_r.toDouble();
+    if (data.r >= 0.minc && data.r <= maxc) data.r = buf_r.toDouble();
     data.g = 255.0;
-    data.b = buf_b.toDouble();
+    if (data.b >= minc && data.b <= maxc) data.b = buf_b.toDouble();
 
     /*if DebugModeON {
       Serial.println(data.r);
@@ -116,18 +114,12 @@ hsv rgb2hsv(rgb in){
 }
 
 void loop() {
-  static hsv hsvout;
-  static rgb rgbin;
-
-  readdata(rgbin);
 
   /*Serial.print(rgbin.r);
   Serial.print(" ");
   Serial.print(rgbin.g);
   Serial.print(" ");
   Serial.println(rgbin.b);*/
-
-  hsvout = rgb2hsv(rgbin);
 
   if DebugModeON {
     Serial.print(hsvout.h);
@@ -137,7 +129,4 @@ void loop() {
     Serial.println(hsvout.v);
   }
 
-  /*analogWrite (9, rgbout.r);
-  analogWrite (10, rgbout.g);
-  analogWrite (11, rgbout.b);*/
 }
