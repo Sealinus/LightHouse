@@ -29,18 +29,17 @@ void readdata (rgb& data) {
     byte dividerIndex = bufString.indexOf(';'); 
 
     String buf_r = bufString.substring(0, dividerIndex); 
-    String buf_g = bufString.substring(dividerIndex + 1);
-    String buf_b = bufString.substring(dividerIndex + 2);
+    String buf_b = bufString.substring(dividerIndex + 1);
 
     data.r = buf_r.toDouble();
-    data.g = buf_g.toDouble();
+    data.g = 255.0;
     data.b = buf_b.toDouble();
 
-    if DebugModeON {
+    /*if DebugModeON {
       Serial.println(data.r);
       Serial.println(data.g);
       Serial.println(data.b);
-    }
+    }*/
     
   }
 }
@@ -87,9 +86,9 @@ hsv rgb2hsv(rgb in){
   hsv out;
   double cmax, cmin, delta;
 
-  in.r = in.r / 255;
-  in.g = in.g / 255;
-  in.b = in.b / 255;
+  in.r = in.r / 255.0;
+  in.g = in.g / 255.0;
+  in.b = in.b / 255.0;
   cmax = max(max(in.r, in.g), in.b);
   cmin = min(min(in.r, in.g), in.b);
   delta = cmax - cmin;
@@ -99,7 +98,7 @@ hsv rgb2hsv(rgb in){
   else if (cmax == in.g) out.h = 60.0 * ((in.b - in.r) / delta + 2);
   else if (cmax == in.b) out.h = 60.0 * ((in.r - in.g) / delta + 4);
 
-  if (cmax = 0) out.s = 0;
+  if (cmax == 0) out.s = 0;
   else out.s = delta / cmax;
 
   out.v = cmax;
@@ -122,11 +121,11 @@ void loop() {
 
   readdata(rgbin);
 
-  /*Serial.print(hsvin.h);
+  /*Serial.print(rgbin.r);
   Serial.print(" ");
-  Serial.print(hsvin.s);
+  Serial.print(rgbin.g);
   Serial.print(" ");
-  Serial.println(hsvin.v);*/
+  Serial.println(rgbin.b);*/
 
   hsvout = rgb2hsv(rgbin);
 
