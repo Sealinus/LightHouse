@@ -29,7 +29,7 @@ void readdata (rgb& data) {
     String buf_r = bufString.substring(0, dividerIndex); 
     String buf_b = bufString.substring(dividerIndex + 1);
 
-    if (data.r >= 0.minc && data.r <= maxc) data.r = buf_r.toDouble();
+    if (data.r >= minc && data.r <= maxc) data.r = buf_r.toDouble();
     data.g = 255.0;
     if (data.b >= minc && data.b <= maxc) data.b = buf_b.toDouble();
 
@@ -113,20 +113,12 @@ hsv rgb2hsv(rgb in){
   return out;
 }
 
+void LightControl(hsv& in, float target){
+  if (target >= 0.0 && target <= 1.0) in.v = target;
+}
+
 void loop() {
 
-  /*Serial.print(rgbin.r);
-  Serial.print(" ");
-  Serial.print(rgbin.g);
-  Serial.print(" ");
-  Serial.println(rgbin.b);*/
-
-  if DebugModeON {
-    Serial.print(hsvout.h);
-    Serial.print(" ");
-    Serial.print(hsvout.s);
-    Serial.print(" ");
-    Serial.println(hsvout.v);
-  }
+  
 
 }
