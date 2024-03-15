@@ -21,18 +21,21 @@ void setup() {
   Serial.setTimeout(50);
 }
 
-void readdata (rgb& data) {
+void readdata (rgb& data, hsv& in, hsv& cur, float& lim) {
   if (Serial.available() > 0) {
     String bufString = Serial.readString(); 
     byte dividerIndex = bufString.indexOf(';'); 
 
     String buf_r = bufString.substring(0, dividerIndex); 
-    String buf_b = bufString.substring(dividerIndex + 1);
+    String buf_l = bufString.substring(dividerIndex + 1);
 
     if (data.r >= minc && data.r <= maxc) data.r = buf_r.toDouble();
     data.g = 255.0;
-    if (data.b >= minc && data.b <= maxc) data.b = buf_b.toDouble();
+    data.b = 0.0;
+    lim = buf_l.toDouble();
 
+    in = rgb2hsv(data);
+    cur = in;
     /*if DebugModeON {
       Serial.println(data.r);
       Serial.println(data.g);
@@ -114,11 +117,32 @@ hsv rgb2hsv(rgb in){
 }
 
 void LightControl(hsv& in, float target){
-  if (target >= 0.0 && target <= 1.0) in.v = target;
+  if (target >= 0.0 && target <= 1.0) in.v = target; //crt in future
+}
+
+double breath (double in, double cur, int& dir, float lim) {
+  uint8_t period = 200;
+  static uint64_t time = millis();
+
+  if (abs(cur - in) > lim - 0.01) dir = dir * -1;
+
+  if(millis() - time >= period) {
+      cur = cur + dir*0.01; // нужно добавить crt
+  }
+
+  return cur;
 }
 
 void loop() {
 
+  static hsv hsvin, hsvcur;
+  static rgb rgbin, rgbout;
+  static int dir = 1;
+  static float lim = 0.0;
+
+  readdata (rgbin, lim);
+
+  if (lim != 0.0) hsvcur.v = breath (hsvin.v, hsvcur.v, dir, lim);
   
 
 }
